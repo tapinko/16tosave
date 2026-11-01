@@ -1,0 +1,161 @@
+# Every Minecraft / Fabric API member the mod code uses.
+#
+# Stage 1 compiled against the real 26.3 jar (Loom 1.19.3) on 2026-10-25, so every stage-1
+# entry below exists; the [U] marks there are kept only as history.
+#
+# Re-check this list after every Minecraft update: a compile error names the member, and this
+# file says where it is used and how sure we were.
+#   [V] seen in code that compiles against 26.3 (Fabric API 26.3, Bobby 26.3, Moonrise mc/26.3,
+#       fabric-example-mod 26.3) or in the NeoForged 26.x primers
+#   [S] long-standing vanilla API, not seen in a 26.3 source, very likely unchanged
+#   [U] not verified; first suspect on a compile error
+#
+# member                                                                 status  used in
+
+## Fabric
+net.fabricmc.api.ClientModInitializer#onInitializeClient                   [V]  SixteenToSave
+net.fabricmc.loader.api.FabricLoader#getGameDir/getConfigDir               [V]  SixteenToSave
+ClientChunkEvents.CHUNK_LOAD / CHUNK_UNLOAD (ClientLevel, LevelChunk)      [V]  CaptureService
+ClientEntityEvents.ENTITY_UNLOAD (Entity, ClientLevel)                     [V]  CaptureService
+ClientTickEvents.END_CLIENT_TICK (Minecraft)                               [V]  CaptureService
+ClientLifecycleEvents.CLIENT_STOPPING (Minecraft)                          [V]  CaptureService
+ScreenEvents.AFTER_INIT (Minecraft, Screen, int, int)                      [V]  ContainerObserver, PauseMenuIntegration
+ScreenEvents.remove(Screen) -> Remove(Screen)                              [V]  ContainerObserver
+Screens.getWidgets(Screen) -> List<AbstractWidget>                         [V]  PauseMenuIntegration
+
+## Client
+Minecraft.getInstance(), .level, .player, .gui, .hitResult                 [V]  several
+Minecraft#getSingleplayerServer()                                          [V]  ServerIdentity
+Minecraft#getConnection()                                                  [S]  ServerIdentity
+Minecraft#getFixerUpper()                                                  [V]  CacheRegionStorage
+Minecraft#execute(Runnable)                                                [S]  CaptureService
+Gui#setScreen(Screen)                                                      [V]  ui
+ClientPacketListener#getServerData()                                       [V]  ServerIdentity
+ServerData.ip, .name, #isRealm()                                           [V]  ServerIdentity (name: [S])
+ClientLevel#entitiesForRendering()                                         [V]  EntityCollector
+ClientLevel#getBlockEntity(BlockPos)                                       [S]  ContainerObserver
+LocalPlayer#getX/getZ                                                      [S]  CaptureService
+Screen(Component), init(), addRenderableWidget, onClose, title/font/width/height/minecraft  [V]  ui
+Screen#extractRenderState(GuiGraphicsExtractor, int, int, float)           [V]  CaptureSettingsScreen
+GuiGraphicsExtractor#text(Font, String, int, int, int)                     [V]  CaptureSettingsScreen
+GuiGraphicsExtractor#centeredText(Font, String, int, int, int)             [V]  CaptureSettingsScreen
+Font.lineHeight                                                            [V]  CaptureSettingsScreen
+Button.builder(Component, OnPress).pos(x,y).size(w,h).build(); .active; #setMessage  [V]  ui
+ConfirmScreen(BooleanConsumer, Component, Component, Component, Component) [V]  CaptureSettingsScreen
+CommonComponents.GUI_CANCEL                                                [V]  CaptureSettingsScreen
+CommonComponents.GUI_DONE, OPTION_ON, OPTION_OFF                           [S]  CaptureSettingsScreen
+net.minecraft.client.gui.screens.PauseScreen                               [U]  PauseMenuIntegration
+AbstractContainerScreen#getMenu()                                          [S]  ContainerObserver
+
+## Chunks and storage
+LevelChunk#getPos, getLevel, getSections, getMinSectionY                   [V]  Snapshotter
+LevelChunk#getBlockEntitiesPos, getBlockEntityNbtForSaving(pos, registries) [V]  Snapshotter
+LevelChunk#getBlockEntities() -> Map<BlockPos, BlockEntity>                [V]  TrackedLevel
+LevelChunk#getHeightmaps, getPersistedStatus().heightmapsAfter()           [V]  Snapshotter
+LevelChunk#isUnsaved(), tryMarkSaved()                                     [V]  CaptureService (client-side behaviour: U1)
+LevelChunkSection#getStates, getBiomes, hasOnlyAir                         [V]  ChunkTagAssembler, Snapshotter
+Heightmap#getRawData, Heightmap.Types#getSerializationKey                  [V]  Snapshotter
+PalettedContainer.codecRW / codecRO, Strategy.createForBlockStates/ForBiomes [V]  ChunkTagAssembler, DimensionStore
+BlockState.CODEC, Block.BLOCK_STATE_REGISTRY, Blocks.AIR                   [V]  ChunkTagAssembler
+Registry#holderByNameCodec, asHolderIdMap, get(Identifier)                 [V]  DimensionStore
+RegistryAccess#lookupOrThrow(Registries.BIOME), Biomes.PLAINS.identifier() [V]  DimensionStore
+ResourceKey#identifier()                                                   [V]  DimensionStore, TrackedLevel
+SimpleRegionStorage(RegionStorageInfo, Path, DataFixer, boolean, DataFixTypes) [V]  CacheRegionStorage
+SimpleRegionStorage#read(ChunkPos), chunkScanner(), close()                [V]  CacheRegionStorage
+IOWorker#store(ChunkPos, CompoundTag) (null tag = delete)                  [V]  CacheRegionStorage (null: S)
+RegionStorageInfo(String, ResourceKey<Level>, String)                      [V]  DimensionStore
+DataFixTypes.CHUNK                                                         [V]  DimensionStore
+DataFixTypes.ENTITY_CHUNK                                                  [S]  DimensionStore
+ChunkPos(int, int), x(), z(), ChunkPos.CODEC                               [V]  several
+NbtUtils.addCurrentDataVersion(CompoundTag)                                [V]  ChunkTagAssembler
+NbtOps.INSTANCE                                                            [V]  ChunkTagAssembler
+CompoundTag put*/getIntOr/getLongArray/getCompoundOrEmpty/getListOrEmpty/contains/get/store [V]  ChunkTagAssembler
+CompoundTag#getStringOr(String, String)                                    [U]  several
+CompoundTag#getIntArray(String) -> Optional<int[]>                         [U]  ChunkTagAssembler
+CompoundTag#keySet()                                                       [U]  ChunkTagAssembler
+ListTag#add, size, compoundStream; LongArrayTag(long[]); Tag#copy          [V]  ChunkTagAssembler
+BlockPos.of(long), asLong(), asLong(int,int,int), getX/getZ                [S]  several
+
+## Entities and containers
+Entity#save(ValueOutput) -> boolean, registryAccess(), getUUID()           [V]  EntityCollector
+Entity#getX/getZ, isPassenger, isRemoved                                   [S]  EntityCollector
+LivingEntity#isDeadOrDying()                                               [V]  EntityCollector, CaptureService
+TagValueOutput.createWithContext(ProblemReporter, HolderLookup.Provider), buildResult() [V]  EntityCollector
+ProblemReporter.DISCARDING                                                 [V]  EntityCollector
+Mth.floor(double)                                                          [S]  EntityCollector, CaptureService
+Container#getContainerSize, setItem(int, ItemStack)                        [S]  ContainerObserver
+AbstractContainerMenu.slots; Slot.container, getContainerSlot(), getItem() [S]  ContainerObserver
+ItemStack#copy()                                                           [S]  ContainerObserver
+BlockHitResult#getBlockPos, getType; HitResult.Type.BLOCK                  [S]  ContainerObserver
+
+## Stage 2 – map (compiled against 26.3 and tested in game)
+com.mojang.blaze3d.platform.NativeImage(int, int, boolean), setPixel(x, y, argb) [V]  MapTextures (Fabric API 26.3 testmods)
+DynamicTexture(Supplier<String>, NativeImage)                              [V]  MapTextures (ModMenu 26.3, YACL 26.3)
+Minecraft#getTextureManager(); TextureManager#register(Identifier, AbstractTexture), release(Identifier) [V]  MapTextures (ModMenu, YACL)
+GuiGraphicsExtractor#blit(RenderPipelines.GUI_TEXTURED, Identifier, int, int, float, float, int, int, int, int) [V]  MapScreen
+GuiGraphicsExtractor#pose().pushMatrix/popMatrix/translate(float,float)/scale(float,float) [V]  MapScreen (YACL 26.3)
+GuiGraphicsExtractor#fill, enableScissor(int,int,int,int), disableScissor() [V]  MapScreen
+Font#width(String)                                                         [S]  MapScreen
+Screen#mouseClicked(MouseButtonEvent, boolean), mouseDragged(MouseButtonEvent, double, double), mouseReleased(MouseButtonEvent), mouseScrolled(double, double, double, double) [V]  MapScreen
+MouseButtonEvent#x(), y()                                                  [V]  MapScreen
+Screen#removed()                                                           [S]  MapScreen
+KeyMapping(String, InputConstants.Type, int, KeyMapping.Category), KeyMapping.Category.register(Identifier), consumeClick() [V]  MapKeybind (ModMenu 26.3, Fabric testmod)
+InputConstants.UNKNOWN.getValue(), InputConstants.Type.KEYBOARD            [V]  MapKeybind (ModMenu 26.3)
+KeyMappingHelper.registerKeyMapping                                        [V]  MapKeybind
+ClientLevel#getMinY(), getMaxY()                                           [V]  MapScreen
+ClientLevel#dimensionType().hasCeiling(), logicalHeight()                  [U]  MapScreen
+LocalPlayer#getYRot()                                                      [V]  MapScreen
+BlockState#getMapColor(BlockGetter, BlockPos), EmptyBlockGetter.INSTANCE, BlockPos.ZERO [S]  BlockColors
+MapColor.NONE/GRASS/WATER, MapColor#id, #col, MapColor.byId(int)          [S]  BlockColors
+BlockState#is(TagKey<Block>), BlockTags.LEAVES                             [S]  BlockColors
+BlockState#isAir(), getFluidState(); FluidState#is(FluidTags.WATER)        [V]  ChunkSummarizer
+PalettedContainer#get(int,int,int), maybeHas(Predicate); PalettedContainerRO#get [V]  ChunkSummarizer (Bobby, Fabric)
+Codec#parse(NbtOps.INSTANCE, Tag); DataResult#promotePartial(Consumer), result() [V]  ChunkSummarizer (Bobby)
+Holder#getRegisteredName(), Holder#value()                                 [V]  ChunkSummarizer, BiomeTints
+Biome#getGrassColor(double, double), getFoliageColor()                     [V]  BiomeTints (Sodium dev overwrites them)
+Biome#getSpecialEffects().waterColor()                                     [V]  BiomeTints (Fabric biome API 26.3)
+Identifier.tryParse(String), Identifier.fromNamespaceAndPath(String, String) [V]  BiomeTints, MapTextures
+NbtIo.read(DataInput) -> CompoundTag                                       [V]  TileWorkers (Moonrise 26.3)
+CompoundTag#getByteOr, getCompound(String) -> Optional                     [V]  ChunkSummarizer
+
+## Stage 3 – selection (compiled against 26.3 and tested in game)
+InputConstants.MOUSE_BUTTON_LEFT, MouseButtonEvent#button()                [V]  MapScreen (YACL 26.3)
+MouseButtonEvent#hasShiftDown(), hasControlDown(), hasAltDown()            [V]  MapScreen (YACL 26.3)
+Minecraft#hasShiftDown(), hasControlDown(), hasAltDown()                   [V]  MapScreen (Sodium dev, Fabric client gametest API)
+Screen#keyPressed(KeyEvent); KeyEvent#key(), hasControlDown(), isSelectAll() [V]  MapScreen, SelectionNameScreen (ModMenu, YACL 26.3)
+InputConstants.KEY_RETURN, KEY_NUMPADENTER                                  [V]  SelectionNameScreen (YACL 26.3)
+InputConstants.KEY_Z                                                       [S]  MapScreen (only in a commented-out line of YACL; long-standing constant)
+Tooltip.create(Component); AbstractWidget#setTooltip(Tooltip)              [V]  MapScreen (ModMenu 26.3)
+EditBox(Font, int, int, int, int, Component); setMaxLength, setValue, getValue, setResponder [V]  SelectionNameScreen (ModMenu, Sodium dev)
+Screen#setInitialFocus(GuiEventListener), rebuildWidgets()                 [V]  SelectionNameScreen, SelectionListScreen (ModMenu, Fabric API 26.3)
+Minecraft#gui.screen()                                                     [V]  SelectionListScreen (ModMenu 26.3, Fabric testmod)
+Component.literal(String)                                                  [S]  SelectionListScreen
+Level#getRespawnData() -> LevelData.RespawnData; RespawnData#pos()         [V]  MapScreen (Fabric API 26.3 testmod)
+LevelData.RespawnData#dimension()                                          [U]  MapScreen – the primer says RespawnData holds a GlobalPos; a wrong name only disables "Around spawn" (LinkageError is caught)
+Screen#setFocused(null) (drop focus after a toolbar click)                  [V]  MapScreen (Sodium dev VideoSettingsScreen)
+
+## Stage 4 – export (not compiled against the real jar yet)
+NbtIo.write(CompoundTag, DataOutput)                                       [V]  WorldExporter (Moonrise 26.3 RegionFileStorageMixin)
+NbtIo.read(DataInput)                                                      [V]  WorldExporter (as in stage 2)
+CompoundTag#remove(String), getIntArray(String) -> Optional, getLongArray -> Optional [V]  WorldExporter (Moonrise, Bobby 26.3)
+new ListTag()                                                              [V]  WorldExporter (Fabric registry sync 26.3)
+SharedConstants.getCurrentVersion().dataVersion().version(), .name(), .stable() [V]  ExportScreen (Bobby, ModMenu 26.3)
+Minecraft#getLevelSource().getBaseDir()                                    [V]  ExportScreen (Fabric client gametest 26.3, Bobby)
+SystemToast.add(minecraft.gui.toastManager(), SystemToast.SystemToastId.PERIODIC_NOTIFICATION, Component, Component) [V]  ExportScreen (ModMenu 26.3)
+FabricLoader#getModContainer(id).getMetadata().getVersion().getFriendlyString() [V]  ExportScreen (ModMenu)
+LocalPlayer#getX(), getY(), getZ(), getYRot()                              [V]  ExportScreen
+level.dat / data/minecraft/world_gen_settings.dat structure                [S]  core WorldFiles – after a 26.1 server's files (MCA Selector templates); U5
+
+## Extras (not compiled against the real jar yet)
+Matrix3x2fStack#rotate(float) (JOML)                                       [S]  SelectionOverlay.hatch
+NbtIo.writeCompressed(CompoundTag, Path)                                   [V]  DragonFightState (Fabric client gametest 26.3)
+EnderDragonFight.CODEC (public static Codec)                               [V]  DragonFightState (Paper 26.3 patch context) – used by reflection
+EnderDragonFight fields needsStateScanning, dragonKilled, hasPreviouslyKilledDragon [V]  DragonFightState (Paper 26.3 patch context) – reflection
+EnderDragonFight static SavedDataType constant, SavedDataType#id()         [U]  DragonFightState – reflection; missing → nothing written
+Codec#parse / encodeStart with NbtOps.INSTANCE; DataResult#getOrThrow()    [V]  DragonFightState
+
+## Fix – chest contents (not compiled against the real jar yet)
+ChestBlockEntity, ChestBlock.TYPE, ChestType.SINGLE, ChestBlock.getConnectedDirection(BlockState), BlockPos#relative(Direction) [V]  ContainerObserver (Fabric transfer API 26.3 ContainerSlotWrapper)
+BlockState#getValue(Property), hasProperty(Property)                       [V]  ContainerObserver (Fabric entity events 26.3)
+ChestType.RIGHT = first half of CompoundContainer(first, second)           [S]  ContainerObserver – CompoundContainer(first, second) seen in Paper's 26.3 ChestBlock patch
+

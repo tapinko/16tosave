@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "sixteentosave",
+	"version": "${version}",
+	"name": "16tosave",
+	"description": "Saves the chunks your client receives on a server, shows them on a map, and exports the chunks you pick into a singleplayer world.",
+	"authors": [
+		"tapusik"
+	],
+	"contact": {
+		"homepage": "https://github.com/tapinko/16tosave",
+		"sources": "https://github.com/tapinko/16tosave",
+		"issues": "https://github.com/tapinko/16tosave/issues"
+	},
+	"license": "EUPL-1.2",
+	"icon": "assets/sixteentosave/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"sk.tapusik.sixteentosave.SixteenToSave"
+		]
+	},
+	"mixins": [
+		{
+			"config": "sixteentosave.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-key-mapping-api-v1": "*",
+		"fabric-lifecycle-events-v1": "*",
+		"fabric-screen-api-v1": "*"
+	}
+}
