@@ -90,8 +90,9 @@ you are most likely to meet:
   one cache and get mixed. Until this is fixed, capture only one backend (Settings → "On this
   server") or clear the cache before you capture the one you want.
 - Containers you never opened, chest minecarts/boats and donkey/llama inventories export empty.
-- Only the overworld, the Nether and the End can be exported; the exported world has no
-  structure data (no fortress or witch-hut spawns, no `/locate`).
+- Custom dimensions added by server plugins or data packs are shown on the map but can't be
+  exported (the overworld, the Nether and the End can).
+- The exported world has no structure data (no fortress or witch-hut spawns, no `/locate`).
 - A void Nether/End makes Minecraft show its "experimental settings" warning when the world is
   opened. That is vanilla's rule for any non-vanilla Nether/End; the world works.
 - On anti-xray servers the fake ores the server sends are what gets saved.
